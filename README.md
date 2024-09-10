@@ -1,17 +1,60 @@
-Zebrafish
-1 Requirments
+How to create our 3D-Zebrafish-nnUNet project 
 
-Self
-    Clone this repo with submodules.
+The first thing that you need to make sure that you have are the following: 
+
+Install PyTorch as described on their website (conda/pip). USe the version that works best with your hardware (cuda, mps, cpu). DO NOT JUST pip install nnunetv2 WITHOUT PROPERLY INSTALLING PYTORCH FIRST. For maximum speed, consider compiling pytorch yourself (experienced users only!). 
+
+Afterwards, Clone this repo with submodules.
 
         git clone --recursive git@github.com:nasyxx/zebrafish_seg.git
 
-Python and nnUNet
-    Require python >= 3.10 with GPUs.
+Creating the CONDA virtual environment 
+
+        To create the project, we will need to utilize CONDA 
+        conda create –n "your env name" python=="chooes a version >= 3.10 
+        python --version will give you the Python version that you are using 
+        And to activate your newly created environment, use the command : conda activate "your env name"
+
+ Install         
+   Python and nnUNet Require python >= 3.10 with GPUs.
 
         Run the following shell commands.
         python -m pip install pdm # for python project management.
         pdm install # install python dependencies.
+
+Initialize the environment now and start to create a new project: 
+
+        pdm init
+        The terminal will show:
+        "Please enter the Python interpreter to use"
+        Enter the any one under your environment and have the correct version of Python
+        Then the terminal will show:"Is the project a library that is installable?
+        If yes, we will need to ask a few more questions to include the project name and build backend [y/n] (n): "
+        Enter: y
+        Enter: Project name (" your project name for your environment"): zebrafish_segmentation
+        Project version (0.1.0): 0.1.0
+        Project description (): autosegmentation tool
+
+        Then the terminal will show:	"Which build backend to use?	
+        0. pdm-backend	
+        1. Setuptools	
+        2. flit-core	
+        3. Hatchling	
+        4. pdm-pep517	
+        Please select (0):" Enter: 4 (choice 4 has now been deprecated,so instead choose option 0)
+        https://pypi.org/project/pdm-pep517/ 
+        Enter: 	License(SPDX name) (MIT): AFL-1.1	
+        Author name (): XXXXX
+        Author email (): XXXXXX
+        Python requires('*' to allow any) (>=3.10): >=3.10
+
+Ok, now that the environment creation is out of the way, we can work on the training of our Neural Network. Copy and Paste the contents of the dc.py file that I have provided
+in to the file. This reflects my own personal changes that I have made 
+        
+        Move into the path where you download  the zebrafish_seg from GitHub:
+        Enter: cd  /path
+        
+Ok, and now it is on to the data conversion process!
 
 Data
     Raw and segmented tif files.
@@ -131,3 +174,6 @@ options:
   --preprocessed_ PREPROCESSED_
                         Alias, left empty (default: data/preprocessed/)
   --results_ RESULTS_   Alias, left empty (default: data/results/)
+
+
+And that's it, hopefully this tutorial helps! 
