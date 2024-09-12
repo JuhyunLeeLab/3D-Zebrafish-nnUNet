@@ -26,9 +26,9 @@ Python ♡ Nasy.
     |  ______|______|______|______|______|______|_
     |  ___|______|______|______|______|______|____
 
-author   : Nasy https://nasy.moe
-date     : Dec  22, 2023
-email    : Nasy <nasyxx+python@gmail.com>
+author   : Saad 
+date     : DSeptemeber 12th, 2024
+email    : Saad <sxs1787@mavs.uta.edu>
 filename : dc.py
 project  : zebrafish
 license  : GPL-3.0+
