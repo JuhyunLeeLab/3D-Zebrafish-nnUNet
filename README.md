@@ -1,179 +1,188 @@
-How to create our 3D-Zebrafish-nnUNet project 
 
-The first thing that you need to make sure that you have are the following: 
+# Read this procedure to implement our nnUNetv2 
+# Procedure courtesy of Saad Saeed and Gilberto Hernandez 
 
-Install PyTorch as described on their website (conda/pip). USe the version that works best with your hardware (cuda, mps, cpu). DO NOT JUST pip install nnunetv2 WITHOUT PROPERLY INSTALLING PYTORCH FIRST. For maximum speed, consider compiling pytorch yourself (experienced users only!). 
+Installation of nnUNetv2 Procedure 
+ 
 
-Afterwards, Clone this repo with submodules.
+PART 1 NNUNET 
 
-        git clone --recursive git@github.com:nasyxx/zebrafish_seg.git
+Setting up the environment 
 
-Creating the CONDA virtual environment 
+Create new environment. 
+Enter command: conda create -n NAME python==3.10 
+NAME is desired environment name. Ex: nn_UNet 
+conda create -n nn_UNet python==3.10 
+ 
+Activate environment: 
+conda activate NAME 
+Ex: conda activate nn_UNet 
+Check version. Enter command: python –version  
+ 
+Cd to the directory where all the zebrafish repositories will be stored. 
+ 
+Enter command git clone https://github.com/nasyxx/zebrafish_seg.git 
+If git is not installed then – sudo apt install git – all 
+Ex: conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia 
+ 
 
-        To create the project, we will need to utilize CONDA 
-        conda create –n "your env name" python=="chooes a version >= 3.10 
-        python --version will give you the Python version that you are using 
-        And to activate your newly created environment, use the command : conda activate "your env name"
+ 
+Transfer the tiff_converter.py file into this directory. 
+ 
 
- Install         
-   Python and nnUNet Require python >= 3.10 with GPUs.
+cd into data directory 
+Enter command: mkdir raw ori segmented results preprocessed cropped inference 
+ 
+Save your environment variables. 
+Enter command: vim ~/.bashrc 
+If not installed enter following command: sudo apt install vim 
+Retry command after installation is finished 
+If blank, double check spelling and retry.  
+Press Insert key to begin editing. 
+Move indicator to very bottom of page and add: 
+export nnUNet_raw_data_base=data/raw/ 
 
-        Run the following shell commands.
-        python -m pip install pdm # for python project management.
-        pdm install # install python dependencies.
+export nnUNet_raw=data/raw/nnUNet_raw_data 
 
-Initialize the environment now and start to create a new project: 
+export nnUNet_results=data/results/ 
 
-        pdm init
-        The terminal will show:
-        "Please enter the Python interpreter to use"
-        Enter the any one under your environment and have the correct version of Python
-        Then the terminal will show:"Is the project a library that is installable?
-        If yes, we will need to ask a few more questions to include the project name and build backend [y/n] (n): "
-        Enter: y
-        Enter: Project name (" your project name for your environment"): zebrafish_segmentation
-        Project version (0.1.0): 0.1.0
-        Project description (): autosegmentation tool
+export nnUNet_preprocessed=data/preprocessed/ 
 
-        Then the terminal will show:	"Which build backend to use?	
-        0. pdm-backend	
-        1. Setuptools	
-        2. flit-core	
-        3. Hatchling	
-        4. pdm-pep517	
-        Please select (0):" Enter: 4 (choice 4 has now been deprecated,so instead choose option 0)
-        https://pypi.org/project/pdm-pep517/ 
-        Enter: 	License(SPDX name) (MIT): AFL-1.1	
-        Author name (): XXXXX
-        Author email (): XXXXXX
-        Python requires('*' to allow any) (>=3.10): >=3.10
+export RESULTS_FOLDER=/home/USER/nnUNetFrame/zebrafish_seg/data/results/ 
 
-Ok, now that the environment creation is out of the way, we can work on the training of our Neural Network. Copy and Paste the contents of the dc.py file that I have provided
-in to the file. This reflects my own personal changes that I have made 
-        
-        Move into the path where you download  the zebrafish_seg from GitHub:
-        Enter: cd  /path
-        
-Ok, and now it is on to the data conversion process!
+Press Escape key to return to command mode. 
+Enter :x to save and exit (Alternatively enter :wq) 
+Enter :q! to exit WITHOUT saving 
+ 
 
-Data
-    Raw and segmented tif files.
+Source your environmental variables: 
+Enter command: source ~/.bashrc 
+Reactivate your environment: conda activate NAME 
+Ex: conda activate nn_UNet 
+ 
+ 
+Install nnUNet repository  
+git clone https://github.com/MIC-DKFZ/nnUNet.git 
+cd nnUNet 
+pip install -e . 
+pip install --upgrade git+https://github.com/FabianIsensee/hiddenlayer.git 
+ 
+Install pytorch https://pytorch.org/get-started/locally/ 
+Follow directions to install according to computer specifications 
+ 
+Install pdm and start project 
+python -m pip install pdm 
+pdm init 
+Follow the prompts. You will see: 
 
-        Default raw data folder should in data/ori. You can change it with the ori property of Conf class in the config.py file or using command line option --ori path/to/raw.
-        Default segmented data folder should in data/seg. You can change it with the seg property of Conf class in the config.py or using command line option --seg path/to/seg.
+"Please enter the Python interpreter to use 
 
-2 Usage
+0. /home/leelab/anaconda3/envs/zebrafish_seg/bin/python (3.10) 
 
-    Input
-        3d tif files with the shape (Height, Weight, T)
-    Output
-        nnUNet MSD files
-        See: https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/dataset_conversion.md
+1. /home/leelab/anaconda3/envs/zebrafish_seg/bin/python3.10 (3.10) 
 
-2.1 Train
-2.1.1 Data conversion
+2. /usr/bin/python3.10 (3.10) 
 
-Run the following shell commands to convert data with default folders:
+Please select (0): " 
 
-pdm run python -m src.dc --tod
+Enter whichever is your preference. Ex: Please select (0): 2 
 
-Run the following shell commands to convert data with custom folders:
+"Is the project a library that is installable? 
+If yes, we will need to ask a few more questions to include the project name and build backend [y/n] (n):” 
 
-pdm run python -m src.dc --tod --ori path/to/raw --seg path/to/seg --database path/to/database_folder
-2.1.2 Shell env
+Enter: y 
 
-After data conversion, you should see a env.sh file in the root folder. Run the following shell command to source it and set the nnUNet env.
+Project name: Zebrafish Segmentation 
 
-source env.sh
+Project version (0.1.0): 0.1.0 
 
-The default of it should be like:
+Project description (): Auto-segmentation tool  
 
-export nnUNet_raw_data_base=data/raw/
-export nnUNet_preprocessed=data/preprocessed/
-export RESULTS_FOLDER=data/results/
+“Which build backend to use? 
+	0. pdm-backend 
+	1. Setuptools 
+	2. flit-core 
+	3. Hatchling “ 
 
-See here https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/setting_up_paths.md for nnUNet env.
-2.1.3 Train
+Enter: 0 
 
-Run the following shell commands to train the model.
+“License(SPDX name) (MIT): AFL-1.1 
+	Author name (): JL 
+	Author email (): juhyun.lee@uta.edu 
+	Python requires('*' to allow any) (>=3.10): >=3.10” 
 
-pdm run nnUNet_train 3d_fullres nnUNetTrainerV2 777 0
+Install remaining dependencies: 
+pdm run pip install tqdm 
+pdm run pip install pathlib 
+pdm run pip install rich 
+pdm run pip install smile_config 
+pdm run pip install tifffile 
+pdm run pip install nnunet 
+pdm run pip install nnunetv2 
+Note, some may not install. Keep an eye on errors for future commands to see which libraries are missing. 
+Dataset Conversion 
 
-If you use multiple GPUs, you can run the following shell commands to train the model.
+Cd to src folder, then open dc.py 
+Either with command: vim dc.py 
+Press Insert key to begin editing 
+If not installed enter following command: sudo apt install vim 
+Try again when installed 
+Or may be opened and edited using Notepad 
+ 
+Edit line 75:  
+Space = tuple(map(float,conf.space.split(“,”))) 
+ 
+Comment out lines 88, 100-119 using # 
+If on vim, press Escape key to return to command mode 
+Use command :x  or  :wq  to save and exit, note to enter commands the command must begin with colon key “ : ” 
+Use command  :q!  to exit WITHOUT saving 
+If on Notepad, simply save the file before exiting.  
+Either CTRL + S 
+On menu bar File>Save 
+Return to directory containing zebrafish_seg repositories from github  
+Enter in terminal while in src directory: cd .. 
+ 
+Enter command: pdm run python -m src.dc --tod --ori path/to/raw --seg path/to/seg --database path/to/database_directory --name NAME –t XXX 
+Note:  
+If environment variables are set up already, you do not need to specify --ori, --seg, --database. 
+path/to/raw is the pathway to the ori directory. Default: data/ori 
+path/to/seg is the pathway to the segmented directory. Default: data/segmented 
+path/to/database_directory is pathway to zebrafish database. Default: data/ 
+NAME is to be replaced with desired name. Ex: zebrafish_segv2 
+XXX is to be replaced with three digit task identifier number. Ex: 777 
+ 
+Convert Task (nnUNetv1 format) to Dataset (nnUNetv2 format): 
+pdm run nnUNetv2_convert_old_nnUNet_dataset Path/To/Task/Folder DatasetXXX_NAME 
+Path/To/Task/Folder is the pathway to where the task is located. Ex: data/raw/nnUNet_raw_data/Task777_zebrafish_segv2 
+Replace XXX with three digit dataset identification number. Ex: 777 
+Replace NAME with desired name for the dataset. Ex: zebrafish_segv2 
+Final product example: Dataset777_zebrafish_segv2 
+ 
 
-pdm run nnUNet_train_DP 2d nnUNetTrainerV2_DP 777 0 -gpus 2 --dbs
+Plan and Preprocess 
 
-The results should be in the data/results folder by default.
-
-nnUNet_train
-    The train entry point.
-3d_fullres
-    The model class. Can be 2d, 3d_fullres, 3d_lowres and 3d_cascade_fullres. See here: https://github.com/MIC-DKFZ/nnUNet#2d-u-net
-nnUNetTrainerV2
-    The trainer class.
-777
-    Task ID. Should geater than 500. You can change it in config.py or using command line option --task=777.
-0
-    Fold. Should be 0, 1, 2, 3, 4.
-
-Here is the nnUNet train example:
-
-    https://github.com/MIC-DKFZ/nnUNet#examples
-    https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/training_example_Hippocampus.md
-    https://github.com/MIC-DKFZ/nnUNet/blob/master/documentation/inference_example_Prostate.md
-
-2.2 Inference
-
-The pipeline of inference is: Test Data conversion from tif to nii=>Inference=>Data conversion from nii back to tif.
-2.2.1 Data conversion
-
-It’s the same as the train data conversion.
-2.2.2 Inference
-
-See in nnUNet: https://github.com/MIC-DKFZ/nnUNet#run-inference
-
-Thus, you can run this command to inference:
-
-pdm run nnUNet_predict -i path/to/converted/test/folder -o path/to/output -t 777 -m 3d_fullres -tr nnUNetTrainerV2 -m 2d
-
-If you use multiple GPUs, simply change the -tr nnUNetTrainerV2 to -tr nnUNetTrainerV2_DP.
-2.2.3 From nii to tif
-
-Run the following shell commands to convert the nii files to tif files.
-
-pdm run python -m src.dc --tot in_=path/to/input_nii out_=path/to/output_tif
-3 Complete help buffer
-
-> python config.py --help
-
-usage: config.py [-h] [--task TASK] [--name NAME] [--postfix POSTFIX] [--database DATABASE] [--raw RAW] [--preprocessed PREPROCESSED]
-                 [--results RESULTS] [--cropped CROPPED] [--ori ORI] [--seg SEG] [--space SPACE] [--tod | --no-tod] [--tot | --no-tot] [--in_ IN_]
-                 [--out_ OUT_] [--raw_ RAW_] [--preprocessed_ PREPROCESSED_] [--results_ RESULTS_]
-
-Configuration for zebrafish.
-
-options:
-  -h, --help            show this help message and exit
-  --task TASK           nnUNet task ID. (default: 777)
-  --name NAME           nnUNet task name (default: Task777_Zebrafish)
-  --postfix POSTFIX     - (default: )
-  --database DATABASE   Dataset base path (default: data/)
-  --raw RAW             nnUNet raw data path (default: raw/)
-  --preprocessed PREPROCESSED
-                        nnUNet preprocessed data path (default: preprocessed/)
-  --results RESULTS     nnUNet results path (default: results/)
-  --cropped CROPPED     nnUNet cropped path (default: cropped/)
-  --ori ORI             Original photo dir. (default: data/ori/)
-  --seg SEG             Segmented dir. (default: data/segmented/)
-  --space SPACE         Distance of each dim of the one pixel (T, H, W) (default: 1,1,1)
-  --tod, --no-tod       Convert tif to dataset? (default: True)
-  --tot, --no-tot       Convert nii back to tif? (default: True)
-  --in_ IN_             Dir of result of nii.gz (default: )
-  --out_ OUT_           Dir of results of tif dir (default: )
-  --raw_ RAW_           Alias, left empty (default: data/raw/)
-  --preprocessed_ PREPROCESSED_
-                        Alias, left empty (default: data/preprocessed/)
-  --results_ RESULTS_   Alias, left empty (default: data/results/)
-
-
-And that's it, hopefully this tutorial helps! 
+Edit default preprocessor to include Laplacian of Gaussian. 
+Download default_preprocessor.py file containing the pre-added code. Move to directory containing the nnUNet repositories. Default preprocessor can be found at: nnUNet > nnUNetv2 > preprocessing > preprocessors > default_preprocessor.py 
+Delete default_preprocessor.py and replace with the updated default_preprocessor.py file. The new version will include the Lapacian of Gaussian code using scipy library. 
+ 
+Begin plan and preprocessing. 
+Enter code:  
+pdm run nnUNetv2_plan_and_preprocess -d XXX -c 3d_fullres  
+--verify_dataset_integrity  
+Replace XXX with Dataset three digit ID. Ex: pdm run nnUNetv2_plan_and_preprocess -d 777 -c 3d_fullres --verify_dataset_integrity  
+ 
+(Optional) To check to see if the new preprocessor is working as intended, utilize the tiff_converter.py file. 
+Make new directory in data that will contain the preprocessed .tif files. 
+(Optional) Create subdirectory for the converted .npz to .tif files for organizational purposes. 
+Enter command: vim tiff_converter.py  
+Replace input_folder = ‘path/to/preprocessed/images’ 
+Ex. input_folder = '/home/senior/nnUNetFrame/zebrafish_seg/data/preprocessed/Dataset444_zebrafish/nnUNetPlans_3d_fullres/' 
+Replace output_folder= ’path/to/tiff/output’ 
+Ex: output_folder = '/home/senior/nnUNetFrame/zebrafish_seg/data/tiff_files/Dataset444_zebrafish_seg' 
+Enter command: pdm run python tiff_converter.py 
+ 
+ 
+Once completed, begin training. 
+Enter code: pdm run nnUNetv2_train DATASET_NAME_OR_ID 3d_fullres 5 
+Replace DATASET_NAME_OR_ID with dataset id used for plan and preprocessing. Ex: pdm run nnUNetv2_train 777 3d_fullres 5 
+Results will be found in data/results 
