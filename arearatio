@@ -1,0 +1,70 @@
+clc 
+close all 
+clear all 
+
+%import excel file and specific rows, columns etc
+pixelcoordinates = table2array(readtable('I:\TRACKING\New folder\4day_testoc1.xlsx','FileType','spreadsheet'));
+[Rows,Columns]= size(pixelcoordinates);
+
+%creating n dimensional empty arrays to store all generated variable values for pixel coordinates and cross prodct variables generating area ratio 
+for i = 1:Rows
+   emptyarray(:,:,i) = zeros(1,10);
+   emptyarray(:,:,i) = (rmmissing(pixelcoordinates(i,:)));
+   crossproductarray1(:,:,i) = zeros(1,3);
+   crossproductarray2(:,:,i) = zeros(1,3);
+   crossprod(:,:,i)= zeros(1,3);
+
+end 
+
+for i = 1:Rows
+%plotting 3D triangular patches based on x,y,z of three nuclei 
+    x = [emptyarray(:,2,i);emptyarray(:,5,i);emptyarray(:,8,i)];
+    y = [emptyarray(:,3,i);emptyarray(:,6,i);emptyarray(:,9,i)];
+    z = [emptyarray(:,4,i);emptyarray(:,7,i);emptyarray(:,10,i)];
+
+    arearatiocolorbar = randi([0 255],3,1);
+    hold on
+    p=fill3(x,y,z,arearatiocolorbar, 'FaceAlpha','0.2');
+    M(i) = getframe(gcf);
+    grid on
+    title('Triangles plotted between 3 nuclei in physical image space i.e pixels')
+    xlabel('Image space in pixels') 
+    ylabel('Image space in pixels') 
+    view(0,0)
+    pause(0.05)
+
+%calculating area ratio of triangle with sides a,b as c = b-a and c-a, as cross product , followed by modulus of that operation 
+
+crossproductarray1(:,:,i) = [emptyarray(:,5,i) - emptyarray(:,2,i); emptyarray(:,6,i) - emptyarray(:,3,i) ; emptyarray(:,7,i) - emptyarray(:,4,i)];
+crossproductarray2(:,:,i) = [emptyarray(:,8,i) - emptyarray(:,2,i); emptyarray(:,9,i) - emptyarray(:,3,i) ; emptyarray(:,10,i) - emptyarray(:,4,i)];
+crossprod(:,:,i) = cross(crossproductarray1(:,:,i),crossproductarray2(:,:,i));
+area(:,i)= 0.5*norm(crossprod(:,:,i));
+
+areamax = max(area);
+areamin = min(area);
+areaminmax(:,i) = (area(:,i))./areamin;
+end
+
+
+% plotting the area ratio
+%arearatioxaxis= 0:0.16:500;
+%arearatioxaxis= 0:7.7:500;
+areasmooth = smoothdata2(areaminmax,"gaussian",'SmoothingFactor',0.1);
+
+areafinal = normalize(areasmooth,"range");
+figure()
+plot(area)
+grid on
+title('Unsmoothened and non-normalized area ratio')
+xlabel('Image space in pixels') 
+ylabel('Image space in pixels') 
+figure()
+plot(areasmooth)
+grid on
+figure()
+plot(arearatioxaxis,areasmooth)
+grid on
+title('Area ratio for ventricular equatorial region in the outer curvature using nnet')
+xlabel('Time (milliseconds)') 
+ylabel('Area ratio') 
+fontsize(gcf,scale=1.5)
