@@ -1,0 +1,101 @@
+%clc 
+%close all 
+%clear all 
+
+%import excel file and specific rows, columns etc
+pixelcoordinates = table2array(readtable('I:\TRACKING\New folder\4day_testoc1.xlsx'));
+
+%declaring null matrices etc 
+[Rows,Columns]= size(pixelcoordinates);
+
+%original nuclei centroids pixel coordinates ; excel file needs sorting as
+%nuclei 1:column 1 to 3 = x1,y1,z1 , column 4 to 6 = x2,y2,z2 and so on ... 
+nuclei_one = zeros(Rows,3);
+nuclei_two = zeros(Rows,3);
+nuclei_three = zeros(Rows,3);
+nuclei_one_trans = zeros(3,Rows);
+nuclei_two_trans = zeros(3,Rows);
+nuclei_three_trans = zeros(3,Rows);
+global_coordinates = zeros(Rows,3);
+
+x1 = zeros(3,Rows);
+y1 = zeros(3,Rows); 
+z1 = zeros(3,Rows);
+X1 = zeros(Rows,3);
+Y1 = zeros(Rows,3);
+Z1 = zeros(Rows,3);
+
+nuclei_one_x = zeros(Rows,1);
+nuclei_one_y = zeros(Rows,1);
+nuclei_one_z =  zeros(Rows,1);
+nuclei_two_x =  zeros(Rows,1);
+nuclei_two_y =  zeros(Rows,1);
+nuclei_two_z =  zeros(Rows,1);
+nuclei_three_x =  zeros(Rows,1);
+nuclei_three_y =  zeros(Rows,1);
+nuclei_three_z =  zeros(Rows,1);
+
+xset = zeros(Rows,1);
+yset = zeros(Rows,1);
+zset = zeros(Rows,1);
+sz = [Rows Columns];
+
+%create empty table to store local coordinate excel fie;
+% no of var types must match the no.of columns
+varTypes = {'double','double','double','double','double','double','double','double','double','double'};
+T = table('Size',sz,'VariableTypes',varTypes);
+
+
+ for i = 1:Rows
+ nuclei_one(i,1:3) = pixelcoordinates(i,2:4);
+ nuclei_one_x(i,1) = nuclei_one(i,1);
+ nuclei_one_y(1,1) = nuclei_one(i,2);
+ nuclei_one_z(1,1) = nuclei_one(i,3);
+
+ nuclei_two(i,1:3) = (pixelcoordinates(i,5:7));
+ nuclei_two_x(i,1) = nuclei_two(i,1);
+ nuclei_two_y(i,1) = nuclei_two(i,2);
+ nuclei_two_z(i,1) = nuclei_two(i,3);
+
+ nuclei_three(i,1:3) = (pixelcoordinates(i,8:10));
+ nuclei_three_x(i,1) = nuclei_three(i,1);
+ nuclei_three_y(i,1) = nuclei_three(i,2);
+ nuclei_three_z(i,1) = nuclei_three(i,3);
+ 
+ xset(i,1) = (nuclei_one_x(i,1) + nuclei_two_x(i,1) + nuclei_three_x(i,1))/3;
+ yset(i,1) = (nuclei_one_y(i,1) + nuclei_two_y(i,1) + nuclei_three_y(i,1))/3;
+ zset(i,1)= (nuclei_one_z(i,1) + nuclei_two_z(i,1) + nuclei_three_z(i,1))/3;
+
+ global_coordinates(i,1) = (xset(i,1));
+ global_coordinates(i,2) = (yset(i,1));
+ global_coordinates(i,3) = (zset(i,1));
+ global_coordinates_trans = transpose(global_coordinates);
+
+ nuclei_one_trans(:,i) = transpose(nuclei_one(i,:));
+ nuclei_two_trans(:,i) = transpose(nuclei_two(i,:));
+ nuclei_three_trans(:,i) = transpose(nuclei_three(i,:));
+
+ x1(:,i) = (global2localcoord(nuclei_one_trans(:,i),'rr',[xset(i,:);yset(i,:);zset(i,:)]));
+ y1(:,i) = (global2localcoord(nuclei_two_trans(:,i),'rr',[xset(i,:);yset(i,:);zset(i,:)]));
+ z1(:,i) = (global2localcoord(nuclei_three_trans(:,i),'rr',[xset(i,:);yset(i,:);zset(i,:)]));
+
+ X1(i,:) = transpose(x1(:,i));
+ Y1(i,:) = transpose(y1(:,i));
+ Z1(i,:) = transpose(z1(:,i));
+
+ T = table(X1,Y1,Z1);
+ XO = [X1(i,:)];
+ YO = [Y1(i,:)];
+ ZO = [Z1(i,:)];
+
+ colorbar = randi([0 255],3,1);
+ hold on
+ fill3(XO,YO,ZO,colorbar, 'FaceAlpha','0.05');
+ %scatter3(XO,YO,ZO,'filled')
+ M(i) = getframe(gcf);
+ grid on
+ pause(0.5)
+
+ end
+ writetable(T,'D:\TRACKING\New folder\6day_testoc20.xlsx','FileType','spreadsheet');
+ 
