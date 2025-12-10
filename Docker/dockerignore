@@ -1,0 +1,51 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Data files (exclude from build, but will be mounted as volume)
+data/
+*.tif
+*.tiff
+*.nii
+*.nii.gz
+*.npz
+*.h5
+*.hdf5
+
+# Logs
+*.log
+logs/
+
+# Documentation
+docs/
+
+# Tests
+tests/
+.pytest_cache/
+.coverage
+
+# OS
+.DS_Store
+Thumbs.db
