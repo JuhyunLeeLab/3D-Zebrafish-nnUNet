@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  zebrafish-nnunet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: zebrafish-nnunet:latest
+    container_name: zebrafish-nnunet
+    
+    # Enable GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # Mount local repository as volume
+    volumes:
+      - ./:/workspace/zebrafish
+      - ./data:/workspace/zebrafish/data
+    
+    # Keep container running
+    stdin_open: true
+    tty: true
+    
+    # Working directory inside container
+    working_dir: /workspace/zebrafish
+    
+    # Environment variables
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - nnUNet_raw_data_base=/workspace/zebrafish/data/raw
+      - nnUNet_raw=/workspace/zebrafish/data/raw/nnUNet_raw_data
+      - nnUNet_results=/workspace/zebrafish/data/results
+      - nnUNet_preprocessed=/workspace/zebrafish/data/preprocessed
+      - RESULTS_FOLDER=/workspace/zebrafish/data/results
+    
+    # Command to keep container alive
+    command: tail -f /dev/null
